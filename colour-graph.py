@@ -20,7 +20,7 @@ def mrv(vertices): #return variable with least amount of colour options
     for vertex in vertices:
         free_colours_total.append(len(vertex[2]))
     print(free_colours_total)
-    mrv = min(free_colours_total)
+    mrv = min(x for x in free_colours_total if x is not None)
     print("mrv is: " + str(mrv))
     mrv_list = []
     for i in range(len(free_colours_total)):
@@ -33,6 +33,44 @@ def mrv(vertices): #return variable with least amount of colour options
     print("Chosen vertex: " + str(chosen_vertex))
     return chosen_vertex
 
+def isConsistent(G, next_vertex, vertices, colour):
+    neighbouring_vertices = G[next_vertex][1:]
+    for neighbour in neighbouring_vertices:
+        if vertices[neighbour][0] == colour:
+            return False
+    return True
+
+def update_vertices(next_vertex, colour, vertices):
+    updated_vertex = vertices[next_vertex]
+    updated_vertex[0] = colour
+    updated_vertex[2] = None
+    print("next_vertex: " + str(next_vertex+1))
+    for vertex in vertices:
+        if next_vertex+1 in vertex[1]:
+            vertex[1].remove(next_vertex+1)
+    return vertices
+
+
+def backtrack(G, vertices):
+    solution = []
+    solution_exists = True
+    for vertex in vertices:
+        if vertex[0] is None:
+            solution_exists = False
+
+
+    if solution_exists == True:
+        for v in range(len(vertices)):
+            solution.append((v+1, vertices[v][0]))
+        return solution
+    else:
+        next_vertex = mrv(vertices)
+        for colour in vertices[next_vertex][2]:
+            if isConsistent(G, next_vertex, vertices, colour):
+                update_vertices(next_vertex, colour, vertices)
+
+    return solution
+
 def solve(n, k, G):
     free_colours = range(0, k)
     # vertices = {}
@@ -43,8 +81,10 @@ def solve(n, k, G):
         vertices.append([None, unassigned_var, free_colours])
     # unsolveable =empty list
 	# return solution # solution is a list of pairs (each vertex and a colour) 
-    value = mrv(vertices)
-    return vertices
+    # solution = backtrack(G, vertices)
+    solution = update_vertices(1, 1, vertices)
+    print(solution)
+    return solution
 
 n = 3
 k = 3
@@ -53,11 +93,6 @@ solution = solve(n, k, G)
 # for i in solution:
 #     print(i)
 
-def backtrack():
-    return None
-
-def constraint(vertices):
-    return None
 
 def selectvertex():
     return None

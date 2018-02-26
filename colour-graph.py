@@ -1,6 +1,29 @@
-def leastconstraining_colour(G, vertices, colours_available):
+
+import sys
+
+def leastconstraining_colour(G, next_vertex, vertices, colours_available):
+    neighbouring_vertices = G[next_vertex][1:]
     
-    return
+    lowest_changes = None
+
+    for colour in colours_available:
+        colour_count = 0
+        print("colour: " + str(colour))
+        for neighbour in neighbouring_vertices:
+            if vertices[neighbour-1][2] is not None:
+                if colour in vertices[neighbour-1][2]:
+                    colour_count += 1
+        if lowest_changes is None:
+            lowest_changes = colour_count
+            optimal_colour = colour
+        elif colour_count < lowest_changes:
+            lowest_changes = colour_count   
+            optimal_colour = colour
+        print("lowest_changes: " + str(lowest_changes))
+        print("optimal_colour: " + str(optimal_colour))
+        print(" ")
+
+    return optimal_colour
 
 def tiebreaker(vertices, mrv_list):
     if len(mrv_list) == 1:
@@ -35,16 +58,12 @@ def mrv(vertices): #return variable with least amount of colour options
     
     # print("mrv is: " + str(mrv))
     mrv_list = []
-    print("free_colours_total")
-    print(free_colours_total)
     for vertex in vertex_mrv_list:
         if vertex[1] == mrv: 
             mrv_list.append(vertex[0])
-    print("Vertices with MRV:")
-    print(mrv_list)
 
     chosen_vertex = tiebreaker(vertices, mrv_list)
-    print("Chosen vertex: " + str(chosen_vertex))
+
     return chosen_vertex
 
 def isConsistent(G, next_vertex, vertices, colour):
@@ -66,15 +85,20 @@ def update_vertices(G, next_vertex, colour, vertices):
     neighbouring_vertices = G[next_vertex][1:]
     print("NEIGHBOURING VERTICES")
     print(neighbouring_vertices)
-    print("\n\n")
+    print(" ")
+
+    print("UPDATE VERTICES")
+    print(vertices)
+    print(" ")
+    
     for neighbour in neighbouring_vertices:
-        print("NEIGHBOURING COLOURS")
-        print(vertices[neighbour-1][2])
-        print("\n")
-        print("colour: " + str(colour))
-        if vertices[neighbour-1][2] is not None:
-            if colour in vertices[neighbour-1][2]:
-                vertices[neighbour-1][2].remove(colour)
+        neighbour_index = neighbour-1
+        print(neighbour-1)
+        if vertices[neighbour_index][2] is not None:
+            if colour in vertices[neighbour_index][2]:
+                print("fuck", vertices[neighbour_index][2])
+                vertices[neighbour_index][2].remove(colour)
+    print(vertices)
     return vertices
 
 
@@ -84,10 +108,6 @@ def backtrack(G, vertices):
     for vertex in vertices:
         if vertex[0] is None:
             solution_exists = False
-   
-    print("NEW SET OF VERTICES")
-    print(vertices)
-    print("\n")
 
     if solution_exists == True:
         for v in range(len(vertices)):
@@ -95,20 +115,30 @@ def backtrack(G, vertices):
         return solution
     else:
         next_vertex = mrv(vertices)
-        
-        print("next_vertex " + str(next_vertex))
+        print("Chosen vertex: " + str(next_vertex))
+        colours_available = []
         for colour in vertices[next_vertex][2]:
             if isConsistent(G, next_vertex, vertices, colour):
+                colours_available.append(colour)
+
+        present_vertices = vertices[:]
+        for colour in present_vertices[next_vertex][2]:
+            leastconstrainingcolour = leastconstraining_colour(G, next_vertex, vertices, colours_available)
+            print("Chosen colour: " + str(leastconstrainingcolour))
+            print("\n")
+            if isConsistent(G, next_vertex, vertices, leastconstrainingcolour):
                 current_vertices = vertices[:]
-                vertices = update_vertices(G, next_vertex, colour, vertices)
+                # vertices = leastconstraining_colour(G, next_vertex, vertices, colours_available)
+                vertices = update_vertices(G, next_vertex, leastconstrainingcolour, vertices)
+                print("Vertices: ")
+                print(vertices)
+                print("\n")
                 solution = backtrack(G, vertices)
                 if solution:
                     return solution
                 vertices = current_vertices
-                
-
-
-
+            if leastconstraining_colour in colours_available:
+                colours_available.remove(leastconstraining_colour)
     return solution
 
 def solve(n, k, G):
@@ -118,7 +148,7 @@ def solve(n, k, G):
     for i in range(len(G)):
         unassigned_var = G[i][1:]
         # vertices[G[i][0]]=[None, unassigned_var, free_colours]
-        vertices.append([None, unassigned_var, free_colours])
+        vertices.append([None, unassigned_var, free_colours[:]])
     # unsolveable =empty list
 	# return solution # solution is a list of pairs (each vertex and a colour) 
     # solution = backtrack(G, vertices)
@@ -135,11 +165,18 @@ def solve(n, k, G):
 # k = 3
 # G = [[1,2,3],[2,1,3,4],[3,1,2,4],[4,2,3]]
 
-n = 3
-k = 2
-G = [[1,2,3],[2,1,4],[3,1,4],[4,2,3]]
+
+#SUCCESS
+# n = 4
+# k = 2
+# G = [[1,2,3],[2,1,4],[3,1,4],[4,2,3]]
+
+n = 10 
+k = 4
+G = [ 
+[1, 2, 3, 4, 6, 7, 10],[2, 1, 3, 4, 5, 6],[3, 1, 2],[4, 1, 2],[5, 2, 6],[6, 1, 2, 5, 7, 8],[7, 1, 6, 8, 9, 10],[8, 6, 7, 9],[9, 7, 8, 10],[10, 1, 7, 9]]
 solution = solve(n, k, G)
-print("THE FUCKING SOLUTION")
+print("DAV IS A CHUMMP")
 print(solution)
 # for i in solution:
 #     print(i)

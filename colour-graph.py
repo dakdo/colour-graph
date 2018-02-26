@@ -1,4 +1,6 @@
-import pprint
+def leastconstraining_colour(G, vertices, colours_available):
+    
+    return
 
 def tiebreaker(vertices, mrv_list):
     if len(mrv_list) == 1:
@@ -62,10 +64,14 @@ def update_vertices(G, next_vertex, colour, vertices):
             vertex[1].remove(next_vertex+1)
 
     neighbouring_vertices = G[next_vertex][1:]
+    print("NEIGHBOURING VERTICES")
+    print(neighbouring_vertices)
+    print("\n\n")
     for neighbour in neighbouring_vertices:
         print("NEIGHBOURING COLOURS")
         print(vertices[neighbour-1][2])
         print("\n")
+        print("colour: " + str(colour))
         if vertices[neighbour-1][2] is not None:
             if colour in vertices[neighbour-1][2]:
                 vertices[neighbour-1][2].remove(colour)

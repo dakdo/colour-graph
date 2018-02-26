@@ -1,6 +1,3 @@
-
-import sys
-
 def leastconstraining_colour(G, next_vertex, vertices, colours_available):
     neighbouring_vertices = G[next_vertex][1:]
     
@@ -52,11 +49,8 @@ def mrv(vertices): #return variable with least amount of colour options
             free_colours_total.append(len(vertices[v][2])) #Gets number of colours available for each unassigned vertex
             vertex_mrv_list.append([v, len(vertices[v][2])]) #Make a list that maps the vertex and the number of colours
 
-    # print(free_colours_total)
-    # mrv = min(x for x in free_colours_total if x is not None)
     mrv = min(free_colours_total)
     
-    # print("mrv is: " + str(mrv))
     mrv_list = []
     for vertex in vertex_mrv_list:
         if vertex[1] == mrv: 
@@ -103,6 +97,7 @@ def update_vertices(G, next_vertex, colour, vertices):
 
 
 def backtrack(G, vertices):
+    print("level down")
     solution = []
     solution_exists = True
     for vertex in vertices:
@@ -112,6 +107,7 @@ def backtrack(G, vertices):
     if solution_exists == True:
         for v in range(len(vertices)):
             solution.append((v+1, vertices[v][0]))
+        print("level up")
         return solution
     else:
         next_vertex = mrv(vertices)
@@ -128,32 +124,33 @@ def backtrack(G, vertices):
             print("\n")
             if isConsistent(G, next_vertex, vertices, leastconstrainingcolour):
                 current_vertices = vertices[:]
-                # vertices = leastconstraining_colour(G, next_vertex, vertices, colours_available)
                 vertices = update_vertices(G, next_vertex, leastconstrainingcolour, vertices)
                 print("Vertices: ")
                 print(vertices)
                 print("\n")
                 solution = backtrack(G, vertices)
                 if solution:
+                    print("level up")
                     return solution
                 vertices = current_vertices
             if leastconstraining_colour in colours_available:
                 colours_available.remove(leastconstraining_colour)
+    print("level up")
     return solution
 
 def solve(n, k, G):
     free_colours = range(0, k)
-    # vertices = {}
     vertices = []
     for i in range(len(G)):
         unassigned_var = G[i][1:]
-        # vertices[G[i][0]]=[None, unassigned_var, free_colours]
         vertices.append([None, unassigned_var, free_colours[:]])
-    # unsolveable =empty list
-	# return solution # solution is a list of pairs (each vertex and a colour) 
-    # solution = backtrack(G, vertices)
     solution = backtrack(G, vertices)
-    return solution
+    # Increment colours by 1 to conform to output standard
+    proper_solution = []
+    if solution:
+        for s in solution:
+            proper_solution.append((s[0],s[1]+1))
+    return proper_solution
 
 # FAILS
 # n = 3
@@ -165,23 +162,25 @@ def solve(n, k, G):
 # k = 3
 # G = [[1,2,3],[2,1,3,4],[3,1,2,4],[4,2,3]]
 
-
-#SUCCESS
+# SUCCESS
 # n = 4
 # k = 2
 # G = [[1,2,3],[2,1,4],[3,1,4],[4,2,3]]
 
+# SUCCESS
 n = 10 
 k = 4
-G = [ 
-[1, 2, 3, 4, 6, 7, 10],[2, 1, 3, 4, 5, 6],[3, 1, 2],[4, 1, 2],[5, 2, 6],[6, 1, 2, 5, 7, 8],[7, 1, 6, 8, 9, 10],[8, 6, 7, 9],[9, 7, 8, 10],[10, 1, 7, 9]]
+G = [[1, 2, 3, 4, 6, 7, 10],[2, 1, 3, 4, 5, 6],[3, 1, 2],[4, 1, 2],[5, 2, 6],[6, 1, 2, 5, 7, 8],[7, 1, 6, 8, 9, 10],[8, 6, 7, 9],[9, 7, 8, 10],[10, 1, 7, 9]]
+
+# SUCCESS
+# n = 5
+# k = 3
+# G = [[1,2,3], [2,1,3], [3,1,2], [4,5], [5,4]]
+
+# FAILS
+# n = 5
+# k = 3
+# G = [[1,2,3], [2,1,3], [3,1,2], [4,5], [5,4]]
+
 solution = solve(n, k, G)
-print("DAV IS A CHUMMP")
 print(solution)
-# for i in solution:
-#     print(i)
-
-
-def selectvertex():
-    return None
-

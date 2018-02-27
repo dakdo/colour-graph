@@ -1,11 +1,11 @@
+import time
+
 def leastconstraining_colour(G, next_vertex, vertices, colours_available):
     neighbouring_vertices = G[next_vertex][1:]
-    
     lowest_changes = None
 
     for colour in colours_available:
         colour_count = 0
-        print("colour: " + str(colour))
         for neighbour in neighbouring_vertices:
             if vertices[neighbour-1][2] is not None:
                 if colour in vertices[neighbour-1][2]:
@@ -16,9 +16,6 @@ def leastconstraining_colour(G, next_vertex, vertices, colours_available):
         elif colour_count < lowest_changes:
             lowest_changes = colour_count   
             optimal_colour = colour
-        print("lowest_changes: " + str(lowest_changes))
-        print("optimal_colour: " + str(optimal_colour))
-        print(" ")
 
     return optimal_colour
 
@@ -77,27 +74,16 @@ def update_vertices(G, next_vertex, colour, vertices):
             vertex[1].remove(next_vertex+1)
 
     neighbouring_vertices = G[next_vertex][1:]
-    print("NEIGHBOURING VERTICES")
-    print(neighbouring_vertices)
-    print(" ")
-
-    print("UPDATE VERTICES")
-    print(vertices)
-    print(" ")
     
     for neighbour in neighbouring_vertices:
-        neighbour_index = neighbour-1
-        print(neighbour-1)
+        neighbour_index = neighbour-1 # Needs to match vertex to its index
         if vertices[neighbour_index][2] is not None:
             if colour in vertices[neighbour_index][2]:
-                print("fuck", vertices[neighbour_index][2])
                 vertices[neighbour_index][2].remove(colour)
-    print(vertices)
     return vertices
 
 
 def backtrack(G, vertices):
-    print("level down")
     solution = []
     solution_exists = True
     for vertex in vertices:
@@ -107,11 +93,9 @@ def backtrack(G, vertices):
     if solution_exists == True:
         for v in range(len(vertices)):
             solution.append((v+1, vertices[v][0]))
-        print("level up")
         return solution
     else:
         next_vertex = mrv(vertices)
-        print("Chosen vertex: " + str(next_vertex))
         colours_available = []
         for colour in vertices[next_vertex][2]:
             if isConsistent(G, next_vertex, vertices, colour):
@@ -120,22 +104,15 @@ def backtrack(G, vertices):
         present_vertices = vertices[:]
         for colour in present_vertices[next_vertex][2]:
             leastconstrainingcolour = leastconstraining_colour(G, next_vertex, vertices, colours_available)
-            print("Chosen colour: " + str(leastconstrainingcolour))
-            print("\n")
             if isConsistent(G, next_vertex, vertices, leastconstrainingcolour):
                 current_vertices = vertices[:]
                 vertices = update_vertices(G, next_vertex, leastconstrainingcolour, vertices)
-                print("Vertices: ")
-                print(vertices)
-                print("\n")
                 solution = backtrack(G, vertices)
                 if solution:
-                    print("level up")
                     return solution
                 vertices = current_vertices
             if leastconstraining_colour in colours_available:
                 colours_available.remove(leastconstraining_colour)
-    print("level up")
     return solution
 
 def solve(n, k, G):
@@ -152,35 +129,36 @@ def solve(n, k, G):
             proper_solution.append((s[0],s[1]+1))
     return proper_solution
 
-# FAILS
-# n = 3
-# k = 2
-# G = [[1,2,3],[2,1,3,4],[3,1,2,4],[4,2,3]]
-
 # SUCCESS
-# n = 3
-# k = 3
-# G = [[1,2,3],[2,1,3,4],[3,1,2,4],[4,2,3]]
+n = 5
+k = 3
+G = [[1,2,3], [2,1,3], [3,1,2], [4,5], [5,4]]
 
 # SUCCESS
 # n = 4
 # k = 2
 # G = [[1,2,3],[2,1,4],[3,1,4],[4,2,3]]
 
-# SUCCESS
-n = 10 
-k = 4
-G = [[1, 2, 3, 4, 6, 7, 10],[2, 1, 3, 4, 5, 6],[3, 1, 2],[4, 1, 2],[5, 2, 6],[6, 1, 2, 5, 7, 8],[7, 1, 6, 8, 9, 10],[8, 6, 7, 9],[9, 7, 8, 10],[10, 1, 7, 9]]
-
-# SUCCESS
-# n = 5
-# k = 3
-# G = [[1,2,3], [2,1,3], [3,1,2], [4,5], [5,4]]
-
 # FAILS
-# n = 5
-# k = 3
-# G = [[1,2,3], [2,1,3], [3,1,2], [4,5], [5,4]]
+# n = 4
+# k = 2
+# G = [[1,2,3],[2,1,3,4],[3,1,2,4],[4,2,3]]
 
-solution = solve(n, k, G)
-print(solution)
+# SUCCESS
+# n = 10 
+# k = 4
+# G = [[1, 2, 3, 4, 6, 7, 10],[2, 1, 3, 4, 5, 6],[3, 1, 2],[4, 1, 2],[5, 2, 6],[6, 1, 2, 5, 7, 8],[7, 1, 6, 8, 9, 10],[8, 6, 7, 9],[9, 7, 8, 10],[10, 1, 7, 9]]
+
+# solution = solve(n, k, G)
+# print(solution)
+
+# To test out the average time to calculate
+time_elapsed = 0
+t = 5
+for i in range(t):
+    start = time.clock()
+    solution = solve(n, k ,G)
+    end = time.clock()
+    time_elapsed += end - start
+print("Solution: ", solution)
+print("Average time: ", time_elapsed/t)
